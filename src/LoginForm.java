@@ -4,13 +4,14 @@ import java.sql.*;
 
 public class LoginForm extends JFrame {
 
-    private JTextField txtUsername;
-    private JPasswordField txtPassword;
+    JTextField txtUsername;
+    JPasswordField txtPassword;
 
     public LoginForm() {
-        setTitle("Login");
-        setSize(300,200);
-        setLayout(new GridLayout(3,2,5,5));
+
+        setTitle("Architecture Firm Login");
+        setSize(350,200);
+        setLayout(new GridLayout(4,2,5,5));
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
@@ -24,37 +25,54 @@ public class LoginForm extends JFrame {
 
         JButton btnLogin = new JButton("Login");
         JButton btnRegister = new JButton("Register");
+        JButton btnCancel = new JButton("Cancel");
 
         add(btnLogin);
         add(btnRegister);
+        add(btnCancel);
 
         btnLogin.addActionListener(e -> login());
         btnRegister.addActionListener(e -> new RegisterForm());
+        btnCancel.addActionListener(e -> clearFields());
 
         setVisible(true);
     }
 
     private void login() {
 
-        String sql = "SELECT * FROM Users WHERE username=? AND password=?";
+        String sql = "SELECT * FROM users WHERE username=? AND password=?";
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try(Connection conn = DBConnection.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)){
 
             ps.setString(1, txtUsername.getText());
             ps.setString(2, new String(txtPassword.getPassword()));
 
             ResultSet rs = ps.executeQuery();
 
-            if (rs.next()) {
-                System.out.println("OK");
-                JOptionPane.showMessageDialog(this,"Login successful");
+            if(rs.next()){
+
+                new MainForm();
+                dispose();
+
             } else {
-                JOptionPane.showMessageDialog(this,"Invalid credentials");
+
+                JOptionPane.showMessageDialog(this,
+                        "To use the application, you must register in the system!");
+
             }
 
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        }catch(Exception e){
+            e.printStackTrace();
         }
+
     }
+
+    private void clearFields(){
+
+        txtUsername.setText("");
+        txtPassword.setText("");
+
+    }
+
 }
