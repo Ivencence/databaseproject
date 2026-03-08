@@ -1,14 +1,25 @@
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.SQLException;
 
 public class DBConnection {
 
-    private static final String URL = "jdbc:mysql://localhost/companydb";
-    private static final String USER = "root";
-    private static final String PASSWORD = "My$ql_$erveR@2024";
+    public static Connection getConnection() {
 
-    public static Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(URL, USER, PASSWORD);
+        try {
+
+            Class.forName("com.mysql.cj.jdbc.Driver");
+
+            return DriverManager.getConnection(
+                    "jdbc:mysql://localhost:3306/architecture_db",
+                    "root",
+                    "My$ql_$erveR@2024"
+            );
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+
     }
+
 }
