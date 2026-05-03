@@ -2,64 +2,124 @@ package gui;
 
 import dao.ClientDAO;
 import model.Client;
-import model.ClientTableModel;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Collections;
-import java.util.List;
 
 public class ClientForm extends JFrame {
 
-    String role;
-    int userId;
-
-    JTable table;
-    ClientDAO dao = new ClientDAO();
-    ClientTableModel model;
+    private ClientDAO dao = new ClientDAO();
 
     public ClientForm(String role, int userId) {
 
-        this.role = role;
-        this.userId = userId;
-
-        setTitle(role.equals("CLIENT") ? "My Account" : "Clients");
+        setTitle("My Profile");
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setLayout(new BorderLayout());
 
-        JLabel header = new JLabel(
-                role.equals("CLIENT") ? "MY ACCOUNT" : "CLIENT MANAGEMENT",
-                SwingConstants.CENTER
-        );
+        JPanel top = createHeader("MY PROFILE");
 
-        header.setFont(new Font("Arial", Font.BOLD, 26));
-        header.setOpaque(true);
-        header.setBackground(new Color(46, 204, 113));
-        header.setForeground(Color.WHITE);
+        JPanel container = new JPanel();
+        container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
+        container.setBackground(Color.WHITE);
 
-        add(header, BorderLayout.NORTH);
+        Client client = dao.getByUserId(userId);
 
-        model = new ClientTableModel(getData());
-        table = new JTable(model);
+        if (client != null) {
 
-        add(new JScrollPane(table), BorderLayout.CENTER);
+            JPanel card = createCard(
+                    "ID: " + client.getId(),
+                    "Name: " + client.getName(),
+                    "Email: " + client.getEmail()
+            );
+
+            JButton edit = createButton("Edit Profile", new Color(52, 152, 219));
+
+            edit.setAlignmentX(Component.CENTER_ALIGNMENT);
+            edit.setMaximumSize(new Dimension(200, 45));
+
+            edit.addActionListener(e ->
+                    JOptionPane.showMessageDialog(this, "Edit functionality coming soon!")
+            );
+
+            card.add(Box.createVerticalStrut(15));
+            card.add(edit);
+
+            container.add(card);
+        }
+
+        else {
+            JLabel empty = new JLabel("No client data found", SwingConstants.CENTER);
+            empty.setFont(new Font("Segoe UI", Font.BOLD, 20));
+            empty.setForeground(Color.GRAY);
+            empty.setBorder(BorderFactory.createEmptyBorder(30, 0, 0, 0));
+            container.add(empty);
+        }
+
+        JScrollPane scroll = new JScrollPane(container);
+        scroll.setBorder(null);
+
+        JButton back = createButton("Back", new Color(200, 60, 60));
+        back.addActionListener(e -> {
+            dispose();
+            new MainForm(role, "User", userId);
+        });
+
+        JPanel bottom = new JPanel();
+        bottom.setBackground(Color.WHITE);
+        bottom.add(back);
+
+        add(top, BorderLayout.NORTH);
+        add(scroll, BorderLayout.CENTER);
+        add(bottom, BorderLayout.SOUTH);
 
         setVisible(true);
     }
 
-    private List<Client> getData() {
+    private JPanel createHeader(String title) {
 
-        if (role.equals("ADMIN")) {
-            return dao.getAll();
+        JPanel p = new JPanel(new BorderLayout());
+        p.setBackground(new Color(25, 25, 50));
+
+        JLabel lbl = new JLabel(title, SwingConstants.CENTER);
+        lbl.setForeground(Color.WHITE);
+        lbl.setFont(new Font("Segoe UI", Font.BOLD, 36));
+
+        p.add(lbl, BorderLayout.CENTER);
+        return p;
+    }
+
+    private JPanel createCard(String... lines) {
+
+        JPanel card = new JPanel();
+        card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
+        card.setBackground(Color.WHITE);
+
+        card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 220));
+
+        card.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(200, 200, 200), 1),
+                BorderFactory.createEmptyBorder(20, 20, 20, 20)
+        ));
+
+        for (String line : lines) {
+            JLabel lbl = new JLabel(line);
+            lbl.setFont(new Font("Segoe UI", Font.PLAIN, 18));
+            lbl.setAlignmentX(Component.LEFT_ALIGNMENT);
+            card.add(lbl);
         }
 
-        if (role.equals("CLIENT")) {
+        return card;
+    }
 
-            Client c = dao.getByUserId(userId); // 🔥 FIX
+    private JButton createButton(String text, Color bg) {
 
-            return c != null ? List.of(c) : Collections.emptyList();
-        }
+        JButton btn = new JButton(text);
+        btn.setPreferredSize(new Dimension(200, 45));
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        btn.setBackground(bg);
+        btn.setForeground(Color.WHITE);
+        btn.setFocusPainted(false);
 
-        return Collections.emptyList();
+        return btn;
     }
 }

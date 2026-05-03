@@ -23,4 +23,8 @@ public class Client {
     public void setName(String name) { this.name = name; }
     public void setEmail(String email) { this.email = email; }
     public void setPhone(String phone) { this.phone = phone; }
+
+    private byte[] photo;
+    public byte[] getPhoto() { return photo; }
+    public void setPhoto(byte[] photo) { this.photo = photo; }
 }

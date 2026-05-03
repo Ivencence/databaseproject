@@ -60,7 +60,7 @@ public class MainForm extends JFrame {
         else if (role.equals("CLIENT")) {
 
             grid.add(createLabel("My Projects"));
-            grid.add(createLabel("My Account"));
+            grid.add(createLabel("My Profile"));
 
             grid.add(projects);
             grid.add(account);
@@ -81,6 +81,7 @@ public class MainForm extends JFrame {
         });
 
         JPanel bottom = new JPanel();
+        bottom.setBackground(Color.WHITE);
         bottom.add(logout);
 
         add(bottom, BorderLayout.SOUTH);
@@ -106,7 +107,7 @@ public class MainForm extends JFrame {
             }
 
             else if (role.equals("CLIENT")) {
-                new ClientForm("CLIENT", userId);
+                new ClientTableForm("CLIENT", userId);
             }
         });
 

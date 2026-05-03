@@ -22,17 +22,17 @@ public class AssignProjectForm extends JFrame {
 
     public AssignProjectForm() {
 
-        setTitle("Assign Projects");
-        setSize(600, 400);
+        setTitle("Assign Project to Employee");
+        setSize(500, 350);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
-        JLabel header = new JLabel("ASSIGN PROJECTS", SwingConstants.CENTER);
+        JLabel header = new JLabel("ASSIGN PROJECT", SwingConstants.CENTER);
         header.setFont(new Font("Segoe UI", Font.BOLD, 28));
         header.setOpaque(true);
         header.setBackground(new Color(25, 25, 50));
         header.setForeground(Color.WHITE);
-
+        header.setBorder(BorderFactory.createEmptyBorder(15, 0, 15, 0));
         add(header, BorderLayout.NORTH);
 
         employees = employeeDAO.getAll();
@@ -42,37 +42,41 @@ public class AssignProjectForm extends JFrame {
         projectBox = new JComboBox<>();
 
         for (Employee e : employees) {
-            employeeBox.addItem(e.getId() + " - " + e.getName());
+            employeeBox.addItem(e.getId() + " – " + e.getName());
         }
-
         for (Project p : projects) {
-            projectBox.addItem(p.getId() + " - " + p.getTitle());
+            projectBox.addItem(p.getId() + " – " + p.getTitle());
         }
 
-        JPanel form = new JPanel(new GridLayout(4, 1, 10, 10));
-        form.setBorder(BorderFactory.createEmptyBorder(30, 50, 30, 50));
+        JPanel form = new JPanel(new GridLayout(4, 2, 10, 15));
+        form.setBorder(BorderFactory.createEmptyBorder(25, 40, 25, 40));
         form.setBackground(Color.WHITE);
 
-        form.add(new JLabel("Select Employee:"));
-        form.add(employeeBox);
+        JLabel lblEmp = new JLabel("Employee:");
+        lblEmp.setFont(new Font("Segoe UI", Font.BOLD, 15));
+        JLabel lblProj = new JLabel("Project:");
+        lblProj.setFont(new Font("Segoe UI", Font.BOLD, 15));
 
-        form.add(new JLabel("Select Project:"));
+        form.add(lblEmp);
+        form.add(employeeBox);
+        form.add(lblProj);
         form.add(projectBox);
+        form.add(new JLabel(""));
+        form.add(new JLabel(""));
 
         add(form, BorderLayout.CENTER);
 
-        JButton assignBtn = new JButton("Assign");
+        JPanel bottom = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 15));
+        bottom.setBackground(Color.WHITE);
 
-        assignBtn.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        assignBtn.setBackground(new Color(46, 204, 113));
-        assignBtn.setForeground(Color.WHITE);
+        JButton assignBtn = createButton("Assign", new Color(46, 204, 113));
+        JButton cancelBtn = createButton("Cancel", new Color(200, 60, 60));
 
         assignBtn.addActionListener(e -> assign());
+        cancelBtn.addActionListener(e -> dispose());
 
-        JPanel bottom = new JPanel();
-        bottom.setBackground(Color.WHITE);
         bottom.add(assignBtn);
-
+        bottom.add(cancelBtn);
         add(bottom, BorderLayout.SOUTH);
 
         setVisible(true);
@@ -84,17 +88,32 @@ public class AssignProjectForm extends JFrame {
         int projIndex = projectBox.getSelectedIndex();
 
         if (empIndex == -1 || projIndex == -1) {
-            JOptionPane.showMessageDialog(this, "Select both employee and project!");
+            JOptionPane.showMessageDialog(this, "Please select both an employee and a project.");
             return;
         }
 
         int employeeId = employees.get(empIndex).getId();
-        int projectId = projects.get(projIndex).getId();
+        int projectId  = projects.get(projIndex).getId();
+
+        if (projectDAO.isAlreadyAssigned(projectId, employeeId)) {
+            JOptionPane.showMessageDialog(this,
+                    "This employee is already assigned to that project!",
+                    "Already Assigned", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
 
         projectDAO.assignProjectToEmployee(projectId, employeeId);
-
         JOptionPane.showMessageDialog(this, "Assignment successful!");
-
         dispose();
+    }
+
+    private JButton createButton(String text, Color bg) {
+        JButton btn = new JButton(text);
+        btn.setPreferredSize(new Dimension(140, 45));
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 15));
+        btn.setBackground(bg);
+        btn.setForeground(Color.WHITE);
+        btn.setFocusPainted(false);
+        return btn;
     }
 }

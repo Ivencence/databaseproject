@@ -11,7 +11,6 @@ public class ClientDAO {
     public List<Client> getAll() {
 
         List<Client> list = new ArrayList<>();
-
         String sql = "SELECT * FROM Clients";
 
         try (Connection conn = DBConnection.getConnection();
@@ -19,11 +18,13 @@ public class ClientDAO {
              ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-                list.add(new Client(
+                Client client = new Client(
                         rs.getInt("client_id"),
                         rs.getString("name"),
                         rs.getString("email")
-                ));
+                );
+                try { client.setPhoto(rs.getBytes("photo")); } catch (Exception ignored) {}
+                list.add(client);
             }
 
         } catch (Exception e) {
@@ -41,15 +42,16 @@ public class ClientDAO {
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, id);
-
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
-                return new Client(
+                Client client = new Client(
                         rs.getInt("client_id"),
                         rs.getString("name"),
                         rs.getString("email")
                 );
+                try { client.setPhoto(rs.getBytes("photo")); } catch (Exception ignored) {}
+                return client;
             }
 
         } catch (Exception e) {
@@ -60,21 +62,25 @@ public class ClientDAO {
     }
 
     public Client getByUserId(int userId) {
+
         String sql = "SELECT * FROM Clients WHERE user_id = ?";
+
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, userId);
-
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
-                return new Client(
+                Client client = new Client(
                         rs.getInt("client_id"),
                         rs.getString("name"),
                         rs.getString("email")
                 );
+                try { client.setPhoto(rs.getBytes("photo")); } catch (Exception ignored) {}
+                return client;
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
